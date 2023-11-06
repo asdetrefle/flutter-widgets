@@ -3594,23 +3594,11 @@ int calculateDateTimeNiceInterval(
       /// For seconds.
       interval = axisRendererDetails.calculateNumericNiceInterval(
           axisRenderer, totalDays * 24 * 60 * 60, size);
-      if (interval! >= 1) {
-        _setActualIntervalType(
-            axisRenderer,
-            notDoubleInterval
-                ? DateTimeIntervalType.seconds
-                : DateTimeIntervalType.minutes);
-        return interval.floor();
-      }
-
-      /// For milliseconds.
-      interval = axisRendererDetails.calculateNumericNiceInterval(
-          axisRenderer, totalDays * 24 * 60 * 60 * 1000, size);
       _setActualIntervalType(
           axisRenderer,
-          notDoubleInterval
-              ? DateTimeIntervalType.milliseconds
-              : DateTimeIntervalType.seconds);
+          notDoubleInterval || interval! < 1
+              ? DateTimeIntervalType.seconds
+              : DateTimeIntervalType.minutes);
       return interval! < 1 ? interval.ceil() : interval.floor();
     // ignore: no_default_cases
     default:
@@ -3684,7 +3672,7 @@ DateFormat getDateTimeLabelFormat(ChartAxisRenderer axisRenderer,
       format = DateFormat.Hm();
       break;
     case DateTimeIntervalType.seconds:
-      format = DateFormat.ms();
+      format = DateFormat.Hms();
       break;
     case DateTimeIntervalType.milliseconds:
       final DateFormat? dateFormat = DateFormat('ss.SSS');

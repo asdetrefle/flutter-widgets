@@ -420,8 +420,8 @@ class DateTimeAxisRenderer extends ChartAxisRenderer {
                 minimum, maximum, rangePadding, interval!.toInt());
             break;
           case DateTimeIntervalType.milliseconds:
-            _axisDetails._calculateMilliSecond(
-                minimum, maximum, rangePadding, interval!.toInt());
+            _axisDetails._calculateSecond(
+                minimum, maximum, rangePadding, 1);
             break;
           case DateTimeIntervalType.auto:
             break;
@@ -693,10 +693,8 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
   /// Calculate the required values of the actual range for the date-time axis
   void _calculateActualRange() {
     ///When chart series is empty, Rendering default chart with below min, max
-    min ??= 2717008000;
-    max ??= 13085008000;
-    //Default date-time value (January 1, 1970) converted into milliseconds
-    const int defaultTimeStamp = 2592000000;
+    min ??= DateTime.now().millisecondsSinceEpoch;
+    max ??= min! + 1;
     actualRange = VisibleRange(
         dateTimeAxis.minimum != null
             ? dateTimeAxis.minimum!.millisecondsSinceEpoch
@@ -708,11 +706,10 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
       if (isSingleDataPoint &&
           dateTimeAxis.autoScrollingDelta != null &&
           dateTimeAxis.autoScrollingDelta! > 0) {
-        final num minMilliSeconds = const Duration(days: 1).inMilliseconds;
-        actualRange!.minimum = actualRange!.minimum - minMilliSeconds;
+        actualRange!.maximum =
+            actualRange!.maximum + const Duration(days: 1).inMilliseconds;
       } else {
-        actualRange!.minimum = actualRange!.minimum - defaultTimeStamp;
-        actualRange!.maximum = actualRange!.maximum + defaultTimeStamp;
+        actualRange!.maximum = actualRange!.maximum + 1;
       }
     }
     dateTimeInterval =
@@ -957,12 +954,8 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
           DateTime(maximum.year, maximum.month, maximum.day, startHour, 59, 59)
               .millisecondsSinceEpoch;
     } else {
-      min = DateTime(
-              minimum.year, minimum.month, minimum.day, startHour + (-interval))
-          .millisecondsSinceEpoch;
-      max =
-          DateTime(maximum.year, maximum.month, maximum.day, endHour + interval)
-              .millisecondsSinceEpoch;
+      min = minimum.millisecondsSinceEpoch;
+      max = maximum.add(Duration(hours: interval)).millisecondsSinceEpoch;
     }
   }
 
@@ -980,12 +973,8 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
               endMinute, 59)
           .millisecondsSinceEpoch;
     } else {
-      min = DateTime(minimum.year, minimum.month, minimum.day, minimum.hour,
-              startMinute + (-interval))
-          .millisecondsSinceEpoch;
-      max = DateTime(maximum.year, maximum.month, maximum.day, maximum.hour,
-              endMinute + interval)
-          .millisecondsSinceEpoch;
+      min = minimum.millisecondsSinceEpoch;
+      max = maximum.add(Duration(minutes: interval)).millisecondsSinceEpoch;
     }
   }
 
@@ -1003,12 +992,8 @@ class DateTimeAxisDetails extends ChartAxisRendererDetails {
               maximum.minute, endSecond)
           .millisecondsSinceEpoch;
     } else {
-      min = DateTime(minimum.year, minimum.month, minimum.day, minimum.hour,
-              minimum.minute, startSecond + (-interval))
-          .millisecondsSinceEpoch;
-      max = DateTime(maximum.year, maximum.month, maximum.day, maximum.hour,
-              maximum.minute, endSecond + interval)
-          .millisecondsSinceEpoch;
+      min = minimum.millisecondsSinceEpoch;
+      max = maximum.add(Duration(seconds: interval)).millisecondsSinceEpoch;
     }
   }
 
